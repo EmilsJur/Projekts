@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Magness - Katalogs</title>
+  <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&family=Open+Sans&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="header" data-header>
+    <div class="container">
+      <div class="overlay" data-overlay></div>
+      <a href="index.html" class="logo">
+        <img src="./assets/images/logo.png" alt="Magness logo">
+      </a>
+      <nav class="navbar" data-navbar>
+        <ul class="navbar-list">
+          <li><a href="katalogs.html">AUTO KATALOGS</a></li>
+          <li><a href="parmums.html">PAR MUMS</a></li>
+          <li><a href="kontakti.html">KONTAKTI</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <div class="header-contact">
+          <a href="tel:27678187" class="contact-link">+371 22222222</a>
+          <span class="contact-time">P.-Pk. 9:00-18:00 | S. 9:00-16:00 | Sv.-Slēgts</span>
+        </div>
+        <a href="katalogs.html" class="btn" aria-labelledby="aria-label-txt">
+          <ion-icon name="car-outline"></ion-icon>
+          <span id="aria-label-txt">Piedāvātās Mašīnas</span>
+        </a>
+        <button class="nav-toggle-btn" data-nav-toggle-btn aria-label="Toggle Menu">
+          <span class="one"></span>
+          <span class="two"></span>
+          <span class="three"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <form id="carFilterForm">
+      <label for="model">Modelis:</label>
+      <input type="text" id="model" name="model">
+      
+      <label for="transmission">Transmisija:</label>
+      <select id="transmission" name="transmission">
+        <option value=""></option>
+        <option value="Automatic">Automāts</option>
+        <option value="Manual">Manuāls</option>
+      </select>
+
+      <label for="year">Gads:</label>
+      <input type="number" id="year" name="year" min="2000" max="2024">
+      
+      <button type="submit">Filtrēt</button>
+    </form>
+
+    <div id="carList" class="car-list"></div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="footer-content"></div>
+      <div class="footer-bottom">
+        <p>&copy; 2023 Magness. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const carsData = [];
+
+    function renderCars(filteredCars) {
+      const carList = document.getElementById('carList');
+      carList.innerHTML = '';
+      filteredCars.forEach(car => {
+        const carItem = document.createElement('div');
+        carItem.classList.add('car-item');
+        carItem.innerHTML = `
+          <img src="${car.ImagePath}" alt="${car.CarDetails.Model}">
+          <p>${car.CarDetails.Model}</p>
+          <p><span class="car-price">${car.CarDetails.Price}</span> EUR</p>
+          <p> ${car.CarDetails.Transmission}</p>
+          <p>Gads: ${car.CarDetails.Year}</p>
+        `;
+        carList.appendChild(carItem);
+      });
+    }
+
+    function filterCars(event) {
+      event.preventDefault();
+
+      const model = document.getElementById('model').value.toLowerCase();
+      const transmission = document.getElementById('transmission').value;
+      const year = document.getElementById('year').value;
+
+      const filteredCars = carsData.filter(car => {
+        const matchesModel = car.CarDetails.Model.toLowerCase().includes(model);
+        const matchesTransmission = !transmission || car.CarDetails.Transmission === transmission;
+        const matchesYear = !year || car.CarDetails.Year == year;
+
+        return matchesModel && matchesTransmission && matchesYear;
+      });
+
+      renderCars(filteredCars);
+    }
+
+    document.getElementById('carFilterForm').addEventListener('submit', filterCars);
+
+    fetch('/getCars')
+      .then(response => response.json())
+      .then(data => {
+        carsData.push(...data);
+        renderCars(carsData); 
+      })
+      .catch(error => console.error('Error fetching car data:', error));
+  </script>
+  <script src="./assets/js/script.js"></script>
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+</body>
+</html>
